@@ -56,18 +56,8 @@ from markdown import util as md_util
 from . import util
 import re
 
-RE_DOLLAR_INLINE = r'((?<!\\)(?:\\{2})*)([$])(?!\s)((?:\\.|[^$])+?)(?<!\s)(?:[$])'
-RE_BRACKET_INLINE = r'((?<!\\)(?:\\{2})*)(\\\()((?:\\.|[^\\])+?)(?:\\\))'
-
-
-def escape(txt):
-    """Escape HTML content."""
-
-    txt = txt.replace('&', '&amp;')
-    txt = txt.replace('<', '&lt;')
-    txt = txt.replace('>', '&gt;')
-    txt = txt.replace('"', '&quot;')
-    return txt
+RE_DOLLAR_INLINE = r'(?:(?<!\\)((?:\\{2})+)(?=\$)|(?<!\\)(\$)(?!\s)((?:\\.|[^\$])+?)(?<!\s)(?:\$))'
+RE_BRACKET_INLINE = r'(?:(?<!\\)((?:\\{2})+?)(?=\\\()|(?<!\\)(\\\()((?:\\[^)]|[^\\])+?)(?:\\\)))'
 
 
 class InlineArithmatexPattern(Pattern):
@@ -79,25 +69,31 @@ class InlineArithmatexPattern(Pattern):
         """Initialize."""
 
         self.script = script
-        if self.script:
-            self.wrap = "<script type=\"math/tex\">%s</script>"
-        else:
-            self.wrap = wrap[0] + '%s' + wrap[1]
+        self.wrap = wrap[0] + '%s' + wrap[1]
         Pattern.__init__(self, pattern)
         self.markdown = md
 
     def handleMatch(self, m):
         """Handle notations and switch them to something that will be more detectable in HTML."""
 
-        math = m.group(4)
+        # Handle escapes
         escapes = m.group(2)
+        if not escapes:
+            escapes = m.group(5)
+        if escapes:
+            return escapes.replace('\\\\', self.ESCAPED_BSLASH)
+
+        # Handle Tex
+        math = m.group(4)
         if not math:
             math = m.group(7)
-            escapes = m.group(5)
-        return escapes.replace('\\\\', self.ESCAPED_BSLASH) + self.markdown.htmlStash.store(
-            self.wrap % (escape(math) if not self.script else math),
-            safe=True
-        )
+        if self.script:
+            el = md_util.etree.Element('script', {'type': 'math/tex'})
+            el.text = md_util.AtomicString(math)
+        else:
+            el = md_util.etree.Element('span')
+            el.text = md_util.AtomicString(self.wrap % math)
+        return el
 
 
 class BlockArithmatexProcessor(BlockProcessor):
@@ -111,52 +107,50 @@ class BlockArithmatexProcessor(BlockProcessor):
         """Initialize."""
 
         self.script = config.get('insert_as_script', False)
-        if self.script:
-            self.wrap = "<script type=\"math/tex; mode=display\">%s</script>"
-        else:
-            wrap = config.get('tex_block_wrap', ['\\[', '\\]'])
-            self.wrap = wrap[0] + '%s' + wrap[1]
+        wrap = config.get('tex_block_wrap', ['\\[', '\\]'])
+        self.wrap = wrap[0] + '%s' + wrap[1]
 
         allowed_patterns = set(config.get('block_syntax', ['dollar', 'square', 'begin']))
-        self.pattern = []
+        pattern = []
         if 'dollar' in allowed_patterns:
-            self.pattern.append(self.RE_DOLLAR_BLOCK)
+            pattern.append(self.RE_DOLLAR_BLOCK)
         if 'square' in allowed_patterns:
-            self.pattern.append(self.RE_BRACKET_BLOCK)
+            pattern.append(self.RE_BRACKET_BLOCK)
         if 'begin' in allowed_patterns:
-            self.pattern.append(self.RE_TEX_BLOCK)
+            pattern.append(self.RE_TEX_BLOCK)
+
+        self.match = None
+        if pattern:
+            self.pattern = re.compile(r'(?s)^(?:%s)[ ]*$' % '|'.join(pattern))
+        else:
+            self.pattern = None
+        self.markdown = md
 
         BlockProcessor.__init__(self, md.parser)
-        self.markdown = md
 
     def test(self, parent, block):
         """Return 'True' for future Python Markdown block compatibility."""
 
-        return bool(len(self.pattern))
+        self.match = self.pattern.match(block) if self.pattern is not None else None
+        return self.match is not None
 
     def run(self, parent, blocks):
         """Find and handle block content."""
 
-        handled = False
+        blocks.pop(0)
 
-        pattern = re.compile(r'(?s)^(?:%s)[ ]*$' % '|'.join(self.pattern))
-        m = pattern.match(blocks[0])
-
-        if m:
-            handled = True
-            block = blocks.pop(0)
-
-            math = m.group('math')
-            if not math:
-                math = m.group('math2')
-            if not math:
-                math = m.group('math3')
-            block = self.markdown.htmlStash.store(
-                self.wrap % (escape(math) if not self.script else math),
-                safe=True
-            )
-            blocks.insert(0, block)
-        return handled
+        math = self.match.group('math')
+        if not math:
+            math = self.match.group('math2')
+        if not math:
+            math = self.match.group('math3')
+        if self.script:
+            el = md_util.etree.SubElement(parent, 'script', {'type': 'math/tex; mode=display'})
+            el.text = md_util.AtomicString(math)
+        else:
+            el = md_util.etree.SubElement(parent, 'span')
+            el.text = md_util.AtomicString(self.wrap % math)
+        return True
 
 
 class ArithmatexExtension(Extension):
