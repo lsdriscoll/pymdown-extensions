@@ -37,10 +37,23 @@ class KbdPattern(Pattern):
         self.strict = config['strict']
         self.classes = config['class'].split(' ')
         self.html_parser = util.HTMLParser()
+        self.map = self.merge(keymap.keymap, config['key_map'])
+        self.aliases = keymap.aliases
+        self.camel = config['camel_case']
         Pattern.__init__(self, pattern)
+
+    def merge(self, x, y):
+        """Given two dicts, merge them into a new dict."""
+
+        z = x.copy()
+        z.update(y)
+        return z
 
     def normalize(self, key):
         """Normalize the value."""
+
+        if not self.camel:
+            return key
 
         norm_key = []
         last = ''
@@ -62,8 +75,8 @@ class KbdPattern(Pattern):
             value = (None, self.html_parser.unescape(ESCAPE_RE.sub(r'\1', key[1:-1])))
         else:
             norm_key = self.normalize(key)
-            canonical_key = keymap.aliases.get(norm_key, norm_key)
-            name = keymap.keymap.get(canonical_key, None)
+            canonical_key = self.aliases.get(norm_key, norm_key)
+            name = self.map.get(canonical_key, None)
             value = (canonical_key, name) if name else None
         return value
 
@@ -109,7 +122,9 @@ class KbdExtension(Extension):
         self.config = {
             'keyboard_separator': ['+', "Provide a keyboard separator - Default: \"+\""],
             'strict': [False, "Format keys and menus according to HTML5 spec - Default: False"],
-            'class': ['keyboard', "Provide class(es) for the kbd elements - Default: kbd"]
+            'class': ['keyboard', "Provide class(es) for the kbd elements - Default: kbd"],
+            'camel_case': [False, 'Allow camle case conversion for key names PgDn -> pg-dn - Default: False'],
+            'key_map': [{}, 'Additional keys to include or keys to override - Default: {}']
         }
         super(KbdExtension, self).__init__(*args, **kwargs)
 

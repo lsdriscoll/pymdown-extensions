@@ -225,6 +225,7 @@ inlinehilite_plaintext:
 kbd:
   extensions:
     pymdownx.kbd:
+      key_map: {'custom': 'Custom Key'}
 
 magiclink:
   extensions:

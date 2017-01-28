@@ -60,7 +60,8 @@ html {
 combo = [
     '++win+shift+s++',
     '++cmd+ctrl+d++',
-    '++ctrl+alt+"Special"++'
+    '++ctrl+alt+"Special"++',
+    '++ctrl+alt+custom++'
 ]
 
 
