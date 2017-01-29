@@ -222,9 +222,9 @@ inlinehilite_plaintext:
       style_plain_text: false
       guess_lang: false
 
-kbd:
+keys:
   extensions:
-    pymdownx.kbd:
+    pymdownx.keys:
       key_map: {'custom': 'Custom Key'}
 
 magiclink:

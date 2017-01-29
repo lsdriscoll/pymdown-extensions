@@ -25,7 +25,7 @@ pages:
     - GitHubEmoji: extensions/githubemoji.md
     - HeaderAnchor: extensions/headeranchor.md
     - InlineHilite: extensions/inlinehilite.md
-    - KBD: extensions/kbd.md
+    - Keys: extensions/keys.md
     - MagicLink: extensions/magiclink.md
     - Mark: extensions/mark.md
     - PathConverter: extensions/pathconverter.md
@@ -74,7 +74,8 @@ markdown_extensions:
       strip_attributes: ''
   - pymdownx.snippets:
       base_path: docs/snippets
-  - pymdownx.kbd:
+  - pymdownx.keys:
+      separator: ＋
 
 extra:
   palette:

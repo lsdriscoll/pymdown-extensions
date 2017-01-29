@@ -1,4 +1,4 @@
-"""KBD."""
+"""Keys."""
 from __future__ import unicode_literals
 from markdown import Extension
 from markdown.inlinepatterns import Pattern
@@ -26,13 +26,13 @@ ESCAPED_BSLASH = '%s%s%s' % (md_util.STX, ord('\\'), md_util.ETX)
 DOUBLE_BSLASH = '\\\\'
 
 
-class KbdPattern(Pattern):
+class KeysPattern(Pattern):
     """Return kbd tag."""
 
     def __init__(self, pattern, config, md):
         """Initialize."""
 
-        self.ksep = config['keyboard_separator']
+        self.ksep = config['separator']
         self.markdown = md
         self.strict = config['strict']
         self.classes = config['class'].split(' ')
@@ -40,7 +40,7 @@ class KbdPattern(Pattern):
         self.map = self.merge(keymap.keymap, config['key_map'])
         self.aliases = keymap.aliases
         self.camel = config['camel_case']
-        Pattern.__init__(self, pattern)
+        super(KeysPattern, self).__init__(pattern)
 
     def merge(self, x, y):
         """Given two dicts, merge them into a new dict."""
@@ -72,7 +72,7 @@ class KbdPattern(Pattern):
         """Process key."""
 
         if key.startswith(('"', "'")):
-            value = (None, self.html_parser.unescape(ESCAPE_RE.sub(r'\1', key[1:-1])))
+            value = (None, self.html_parser.unescape(ESCAPE_RE.sub(r'\1', key[1:-1])).strip())
         else:
             norm_key = self.normalize(key)
             canonical_key = self.aliases.get(norm_key, norm_key)
@@ -113,32 +113,29 @@ class KbdPattern(Pattern):
         return el
 
 
-class KbdExtension(Extension):
+class KeysExtension(Extension):
     """Add KBD extension to Markdown class."""
 
     def __init__(self, *args, **kwargs):
         """Initialize."""
 
         self.config = {
-            'keyboard_separator': ['+', "Provide a keyboard separator - Default: \"+\""],
+            'separator': ['+', "Provide a keyboard separator - Default: \"+\""],
             'strict': [False, "Format keys and menus according to HTML5 spec - Default: False"],
-            'class': ['keyboard', "Provide class(es) for the kbd elements - Default: kbd"],
+            'class': ['keys', "Provide class(es) for the kbd elements - Default: kbd"],
             'camel_case': [False, 'Allow camle case conversion for key names PgDn -> pg-dn - Default: False'],
             'key_map': [{}, 'Additional keys to include or keys to override - Default: {}']
         }
-        super(KbdExtension, self).__init__(*args, **kwargs)
+        super(KeysExtension, self).__init__(*args, **kwargs)
 
     def extendMarkdown(self, md, md_globals):
         """Add support for emojis."""
 
         util.escape_chars(md, ['+'])
-        md.inlinePatterns.add("kbd", KbdPattern(RE_KBD, self.getConfigs(), md), "<escape")
+        md.inlinePatterns.add("keys", KeysPattern(RE_KBD, self.getConfigs(), md), "<escape")
 
 
-###################
-# Make Available
-###################
 def makeExtension(*args, **kwargs):
     """Return extension."""
 
-    return KbdExtension(*args, **kwargs)
+    return KeysExtension(*args, **kwargs)
