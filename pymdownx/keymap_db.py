@@ -80,6 +80,9 @@ keymap = {
     "page-down": "Page Down",
     "home": "Home",
     "end": "End",
+
+
+    # Edit keys
     "backspace": "Backspace",
     "delete": "Del",
     "insert": "Ins",
@@ -89,12 +92,12 @@ keymap = {
     "break": "Break",
     "caps-lock": "Caps Lock",
     "clear": "Clear",
+    "eject": "Eject",
+    "enter": "Enter",
     "escape": "Esc",
     "help": "Help",
     "print-screen": "Print Screen",
     "scroll-lock": "Scroll Lock",
-    "enter": "Enter",
-    "eject": "Eject",
 
     # Numeric keypad
     "num0": "Num 0",
@@ -114,7 +117,7 @@ keymap = {
     "num-lock": "Num Lock",
     "num-minus": "Num -",
     "num-plus": "Num +",
-    "num-separator": "Num ,",
+    "num-separator": "Num .",
     "num-slash": "Num /",
     "num-enter": "Num Enter",
 
@@ -217,7 +220,6 @@ aliases = {
     "del": "delete",
     "divide": "num-slash",
     "down": "arrow-down",
-    "end": "end",
     "esc": "escape",
     "return": "enter",
     "exclamation": "exclam",
@@ -251,17 +253,16 @@ aliases = {
     "next": "page-down",
     "next-track": "media-next-track",
     "num-del": "num-delete",
-    "num-equalsign": "num-equal",
     "numlk": "num-lock",
-    "numlock": "num-lock",
     "open-brace": "brace-left",
     "open-bracket": "bracket-left",
     "opt": "option",
     "page-dn": "page-down",
     "page-up": "page-up",
     "pause": "media-pause",
-    "pgdn": "page-down",
-    "pgup": "page-up",
+    "pg-dn": "page-down",
+    "pg-up": "page-up",
+    "pipe": "bar",
     "play": "media-play",
     "play-pause": "media-play-pause",
     "prev-track": "media-prev-track",
@@ -273,7 +274,6 @@ aliases = {
     "rcontrol": "right-control",
     "rctrl": "right-control",
     "refresh": "browser-refresh",
-    "num-return": "num-enter",
     "right": "arrow-right",
     "right-ctrl": "right-control",
     "right-menu": "right-alt",
@@ -294,6 +294,5 @@ aliases = {
     "vol-up": "volume-up",
     "win": "windows",
     "xbutton1": "x-button1",
-    "xbutton2": "x-button2",
-    "zoom": "zoom"
+    "xbutton2": "x-button2"
 }
