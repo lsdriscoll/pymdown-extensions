@@ -225,7 +225,15 @@ inlinehilite_plaintext:
 keys:
   extensions:
     pymdownx.keys:
-      key_map: {'custom': 'Custom Key'}
+      key_map: {
+        'custom': 'Custom Key',
+        'option': 'Opt'
+      }
+
+keys (camel):
+  extensions:
+    pymdownx.keys:
+      camel_case: true
 
 magiclink:
   extensions:

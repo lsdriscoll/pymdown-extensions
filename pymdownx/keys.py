@@ -10,14 +10,14 @@ import re
 RE_KBD = r'''(?x)
 (?:
     # Escape
-    (?<!\\)((?:\\{2})+)(?=\+)|
+    (?<!\\)(?P<escapes>(?:\\{2})+)(?=\+)|
     # Key
-    (?<!\+)\+{2}
+    (?<!\\)\+{2}
     (
         (?:(?:[\w\-]+|"(?:\\.|[^"])+"|\'(?:\\.|[^\'])+\')\+)*?
         (?:[\w\-]+|"(?:\\.|[^"])+"|\'(?:\\.|[^\'])+\')
     )
-    \+{2}(?!\+)
+    \+{2}
 )
 '''
 
@@ -100,13 +100,16 @@ class KeysPattern(Pattern):
 
         last = None
         for item_class, item_name in content:
-            classes = base_classes[:]
+            classes = []
             if item_class:
                 classes.append('key-' + item_class)
             if last is not None and self.ksep:
                 span = md_util.etree.SubElement(el, 'span')
                 span.text = md_util.AtomicString(self.ksep)
-            kbd = md_util.etree.SubElement(el, 'kbd', {'class': (' '.join(classes) if classes else {})})
+            attr = {}
+            if classes:
+                attr['class'] = ' '.join(classes)
+            kbd = md_util.etree.SubElement(el, 'kbd', attr)
             kbd.text = md_util.AtomicString(item_name)
             last = kbd
 
