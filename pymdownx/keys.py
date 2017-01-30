@@ -12,16 +12,17 @@ RE_KBD = r'''(?x)
     # Escape
     (?<!\\)((?:\\{2})+)(?=\+)|
     # Key
-    \+{2}
+    (?<!\+)\+{2}
     (
         (?:(?:[\w\-]+|"(?:\\.|[^"])+"|\'(?:\\.|[^\'])+\')\+)*?
         (?:[\w\-]+|"(?:\\.|[^"])+"|\'(?:\\.|[^\'])+\')
     )
-    \+{2}
+    \+{2}(?!\+)
 )
 '''
 
 ESCAPE_RE = re.compile(r'''(?<!\\)(?:\\\\)*\\(.)''')
+UNESCAPED_PLUS = re.compile(r'''(?<!\\)(?:\\\\)*(\+)''')
 ESCAPED_BSLASH = '%s%s%s' % (md_util.STX, ord('\\'), md_util.ETX)
 DOUBLE_BSLASH = '\\\\'
 
@@ -85,8 +86,7 @@ class KeysPattern(Pattern):
 
         if m.group(2):
             return m.group('escapes').replace(DOUBLE_BSLASH, ESCAPED_BSLASH)
-
-        content = [self.process_key(key) for key in m.group(3).split('+')]
+        content = [self.process_key(key) for key in UNESCAPED_PLUS.split(m.group(3)) if key != '+']
 
         if None in content:
             return
