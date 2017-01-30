@@ -14,6 +14,7 @@ CodeHilite
 CodeHilite's
 CriticMarkup
 CSS
+Ctrl
 customizable
 docstrings
 Emoji
@@ -21,9 +22,11 @@ emoji
 EmojiOne
 EmojiOne's
 emojis
+Esc
 EscapeAll
 escaper
 ExtraRawHtml
+Fn
 formatter
 Gemoji
 Gemoji's
@@ -58,6 +61,7 @@ namespace
 nd
 nl
 NONINFRINGEMENT
+Num
 OAuth
 Octicons
 online
